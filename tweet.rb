@@ -60,18 +60,20 @@ class Malkov
     text = []
     first = @dictionary.sample
     text.push(first)
-    nextwords = @dictionary.select do |item|
-      (item.split[0] == first.split[1])
-    end
 
-    3.times do
+    5.times do
+      nextwords = @dictionary.select do |item|
+        (item.split[0] == text[text.length-1].split[1])
+      end
+
+    
+      nextwords.delete_if do |word|
+        text.to_s.include?(word)
+      end
       unless nextwords == nil
-      	nextwords.delete_if do |word|
-          text.to_s.include?(word)
-      	end
         nextword = nextwords.compact.sample
         unless nextword == nil
-          text.push(nextword)
+          text.push(nextword.split[1])
         end  
       end
     end
