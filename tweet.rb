@@ -3,6 +3,7 @@ require 'natto'
 require 'tweetstream' #これがないとなぜか動かない
 require 'twitter'
 require './key.rb'
+require './malkov.rb'
 
 
 Twitter.configure do |config|
@@ -29,60 +30,8 @@ def readdata
   return stat
 end
 
+natto = Natto::MeCab.new
 
-class Malkov
-
-  def initialize(*str)
-    @array = str
-    @array.flatten!
-    @nm = Natto::MeCab.new
-  
-    statements = []
-    @array.each do |segments|
-
-      statement = segments
-
-      @nm.parse(segments) do |n|
-        type = n.feature.split(",")[0]
-        if type == "名詞"
-          statements.push("#{statement.split(n.surface)[0]} #{n.surface}")
-          statements.push("#{n.surface} #{statement.split(n.surface)[1]}")
-        end
-      end
-
-    end
-
-    @dictionary = statements
-  end
-
-  def create
-
-    text = []
-    first = @dictionary.sample
-    text.push(first)
-
-    5.times do
-      nextwords = @dictionary.select do |item|
-        (item.split[0] == text[text.length-1].split[1])
-      end
-
-    
-      nextwords.delete_if do |word|
-        text.to_s.include?(word)
-      end
-      unless nextwords == nil
-        nextword = nextwords.compact.sample
-        unless nextword == nil
-          text.push(nextword.split[1])
-        end  
-      end
-    end
-
-    return text.join("").gsub(" ","")
-  end
-
-end
-
-m = Malkov.new(readdata)
+m = Malkov.new(readdata,natto)
 
 Twitter.update m.create
