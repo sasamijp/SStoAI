@@ -5,47 +5,83 @@ class Malkov
   def initialize(*str,natto)
     array = str
     statements = []
-
+    @natto = natto
+    @firsts = []
+    
     array.flatten.each do |segment|
 
-      natto.parse(segment) do |n|
-        case n.feature.split(",")[0]
-        when "助動詞", "名詞", "動詞", "形容詞", "助詞"
-          statements.push("$$#{segment.split(n.surface)[0]} #{n.surface}")
-          statements.push("#{n.surface} #{segment.split(n.surface)[1]}")
+      
+      words = wakati(natto,segment,'surface').compact
+      splitnums = []
+
+      words.each_with_index do |word,l|
+        case wakati(natto,word,'part')[0]
+        when '名詞', '助詞'
+          splitnums.push(l)
         end
       end
 
-    end
 
+      splitnums.each do |num|
+
+        @firsts.push("#{segment.split(words[num])[0]}&&#{words[num]}")
+
+
+        statements.push("#{words[num]}&&#{segment.split(words[num])[1]}")
+
+      end
+
+    end
+    p statements
     @dictionary = statements
+
   end
 
+
   def create
-    
-    firsts = @dictionary.select do |str|
-      (str[0..1] == "$$") 
-    end
-
-    text = [firsts.sample]
-
+    @text = [@firsts.sample]
     loop do
 
       nextwords = @dictionary.compact.select do |item|
-        (item.include?(" ") and text.include?(" ") and item.split[0] == text[text.length-1].split[1])
+        (splitable?(item) and splitable?(@text[@text.length-1]) and @text[@text.length-1].split("&&")[1] == item.split("&&")[0])
       end
 
       case nextwords.length
-      when 0 
+      when 0
         break
       else
-        text.push(nextwords.compact.sample.split[1])
-      end
 
+        @text.push(nextwords.compact.sample.split("&&")[1])
+      end
+      @text.compact!
+    end
+    return @text.join("").gsub("&&","").gsub(" ","")
+  end
+
+
+  private
+
+  def wakati(natto,str,mode)
+
+    surfaces = []
+    parts = []
+    natto.parse(str) do |n|
+      surfaces.push(n.surface)
+      parts.push(n.feature.split(",")[0])
     end
 
-    return text.join("").gsub("$$","").gsub(" ","")
+    case mode
+    when "surface"
+      return surfaces
+    when "part"
+      return parts
+    end
 
   end
+
+  def splitable?(str)
+    return (str.include?("&&"))
+  end
+
 
 end
