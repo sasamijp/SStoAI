@@ -8,6 +8,7 @@ def sstoHash(str,name)
   s.gsub!("｣","」")
   s.gsub!("』","」")
   s = s.split("\n")
+  name.gsub!("\n","")
 
   statements = s.select do |segment|
     segment.include?("「") and segment.include?("」")
