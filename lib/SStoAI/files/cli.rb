@@ -82,7 +82,8 @@ class BOTCLI < Thor
         print "."
         if status.text.include?("@#{Const::SCREEN_NAME}")
           puts "received reply from #{status.user.screen_name}"
-          tweet = "@#{status.user.screen_name} #{au.respond(status.text.gsub("@#{Const::SCREEN_NAME}","")}"
+          target = status.text.gsub("@#{Const::SCREEN_NAME}","")
+          tweet = "@#{status.user.screen_name} #{au.respond(target)}")
           option = {"in_reply_to_status_id"=>status.id.to_s}
           rest.update(tweet, option)
         end
