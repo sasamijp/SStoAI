@@ -4,11 +4,12 @@ require 'tweetstream'
 require 'twitter'
 require './key.rb'
 
-Twitter.configure do |config|
-   config.consumer_key        = Const::CONSUMER_KEY
-   config.consumer_secret     = Const::CONSUMER_SECRET
-   config.oauth_token            = Const::ACCESS_TOKEN
-   config.oauth_token_secret  = Const::ACCESS_TOKEN_SECRET
+
+rest = Twitter::REST::Client.new do |config|
+  config.consumer_key        = Const::CONSUMER_KEY
+  config.consumer_secret     = Const::CONSUMER_SECRET
+  config.access_token        = Const::ACCESS_TOKEN
+  config.access_token_secret = Const::ACCESS_TOKEN_SECRET
 end
 TweetStream.configure do |config|
    config.consumer_key        = Const::CONSUMER_KEY
@@ -21,7 +22,7 @@ end
 client = TweetStream::Client.new
 
 def readdata
-  s = File.read("data.txt", :encoding => Encoding::UTF_8)
+  s = File.read("./data.txt", :encoding => Encoding::UTF_8)
   s = s.split("\n")
   return s
 end
@@ -70,9 +71,10 @@ def isReply(str,name,id)
   end
 end
 
+screen_name = Const::SCREEN_NAME
+
 client.userstream do |status|
   p status.text
-  screen_name = Const::SCREEN_NAME
   if isReply(status.text,status.user.screen_name,screen_name)
 
     input = extractNouns(status.text.gsub("@sa2mi ",""))
@@ -93,13 +95,13 @@ client.userstream do |status|
 
       n = hitnumbers.sample.to_i
       texts.push(dictionary2[n]) if n != 0
-      
+
     end
     p texts
     text = texts.sample
     text = "@#{status.user.screen_name} #{text}"
     option = {"in_reply_to_status_id"=>status.id.to_s}
-    Twitter.update text,option
+    rest.update text,option
 
   end
 end

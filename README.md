@@ -1,25 +1,65 @@
-SStoAI
-===========
+# SStoAI
 
-SS(ショートストーリー)をAI(人工無能)に変換します
+ショートストーリーを人工無能に変換します
 
-使い方
-===========
+## Installation
 
-* 作りたい人工無脳のキャラクターが登場するSSをかき集めてくる
-* ss.txtに全部突っ込む
-* saveSS.rbを実行
-* study.rbを実行
-* talk.rbでおしゃべりできる
+$ git clone git://github.com/sasamijp/SStoAI.git SStoAI
 
-botとして動かす
-==========
+$ cd SStoAI
 
-* Twitterのbotとしても動かせます
-* key.rbにスクリーンネームとCK/CSとトークンやらを書き込む
-* bot.rbを実行
- 
-環境
-==========
+$ bundle install
 
-* ruby 1.9.3 p429 では動いてる
+
+## Usage
+
+###作成
+
+人工無能をhome以下に勝手に作る:
+
+$ bundle exec bin/SStoAI new harukabot 春香
+
+〜対象キャラが出てくるSSをただひたすら集める〜
+
+$ cd ~/harukabot/libs/ss.txt
+
+ss.txtに本文を突っ込む(2chの名前欄などはあっても大丈夫):
+
+$ cd ~/harukabot
+
+SS内で使用されるキャラの名前を指定してconvert:
+
+$ ruby cli.rb convert 春香
+
+/libs/data.txtにデータが書き込まれてれば成功
+
+SS収集、学習を全自動で(アイマスキャラのみ対応):
+
+$ bundle exec bin/SStoAi new harukabot 春香 --autocollection
+
+###話しかける
+
+ホームに移動:
+
+$ cd ~
+
+作ったAIのフォルダへ:
+
+$ cd harukabot
+
+gemいれる:
+
+$ bundle install
+
+話しかける:
+
+$ ruby cli.rb talk 元気ですか
+
+###botとして動かす
+
+./libs/key.rbにbotとして動かしたいアカウントのCK/CSその他もろもろを入れておく
+
+$ ruby cli.rb twitterbot
+
+
+###何かあれば@sasamijpまで

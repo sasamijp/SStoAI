@@ -2,7 +2,7 @@
 require 'natto'
 
 def readdata
-  s = File.read("data.txt", :encoding => Encoding::UTF_8)
+  s = File.read("./data.txt", :encoding => Encoding::UTF_8)
   s = s.split("\n")
   return s
 end
@@ -16,7 +16,7 @@ s.each_with_index do |variable,l|
   dictionary2[l] = variable[0]
 end
 
-def extractNouns(str)
+def extractNounsforTalking(str)
   nm = Natto::MeCab.new
   nouns = []
   nm.parse(str) do |n|

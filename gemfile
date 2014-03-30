@@ -1,7 +1,8 @@
+source 'https://rubygems.org'
 
-source "https://rubygems.org"
-gem 'natto', "0.9.6"
+# Specify your gem's dependencies in SStoAI.gemspec
+gemspec
 
-gem 'twitter', "4.8.1"
-
-gem 'tweetstream', "2.6.0"
+gem "extractcontent", github: "mono0x/extractcontent"
+gem "nokogiri"
+gem "natto"
