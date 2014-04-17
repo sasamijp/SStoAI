@@ -60,7 +60,6 @@ module SStoAI
           study(name, projectDirectory)
         end
         puts "complete!"
-
       else
         puts "もうそのディレクトリあるからｗバーカｗ"
       end
@@ -102,6 +101,7 @@ module SStoAI
     end
 
     def extractNouns(str)
+      return if str == nil
       nm = Natto::MeCab.new
       nouns = []
       nm.parse(str) do |n|
@@ -128,6 +128,7 @@ module SStoAI
     end
 
     def extractSerif(str)
+      return if str == nil
       if str.include?("「")
         name = str[0..str.rindex("「")-1]
         str.sub!("「","")
@@ -138,12 +139,9 @@ module SStoAI
     end
 
     def whoIsTalking(str)
-      unless str == nil
-        if str.include?("「")
-          return str[0..str.rindex("「")-1]
-        else
-          return "exception"
-        end
+      return if str == nil
+      if str.include?("「")
+        return str[0..str.rindex("「")-1]
       else
         return "exception"
       end
@@ -165,7 +163,6 @@ module SStoAI
       inReplyto = Hash::new
       s_clone = statements
       statements.each_with_index do |stat,l|
-        whoisnext = whoIsTalking(s_clone[l+1])
         if whoIsTalking(stat) == name and whoIsTalking(s_clone[l+1]) != name
           inReplyto.store(extractSerif(stat),extractSerif(s_clone[l+1]))
         end
@@ -181,7 +178,7 @@ module SStoAI
       end
       File.open("#{projectDirectory}/libs/saved.txt","a") do |file|
         converted.each do |s|
-          file.write("#{s}\n")
+          file.write("#{s}\n") unless s == nil
         end
       end
       sstoHash("#{projectDirectory}/libs/saved.txt", @name).each do |hash|
@@ -190,6 +187,6 @@ module SStoAI
         end
       end
     end
-
+    
   end
 end

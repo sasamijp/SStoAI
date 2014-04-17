@@ -6,3 +6,4 @@ gemspec
 gem "extractcontent", github: "mono0x/extractcontent"
 gem "nokogiri"
 gem "natto"
+gem "sinatra"
