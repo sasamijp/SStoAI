@@ -53,7 +53,7 @@ module SStoAI
             end
           end
         end
-        
+
         study(name, projectDirectory)
 
         puts "complete!"
@@ -153,8 +153,12 @@ module SStoAI
     end
 
     def sstoHash(str,name)
+
       s = File.read(str, :encoding => Encoding::UTF_8)
-      s.gsub!("｢","「").gsub!("『","「").gsub!("｣","」").gsub!("』","」")
+      s.gsub!("｢","「")
+      s.gsub!("『","「")
+      s.gsub!("｣","」")
+      s.gsub!("』","」")
       s = s.split("\n")
 
       statements = s.select do |segment|
