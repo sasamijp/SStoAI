@@ -21,8 +21,7 @@ module SStoAI
       say word
     end
 
-    desc "new projectharuka 春香" , "Creaate the new AI."
-    option :autocollection
+    desc "new dirname 名前" , "Create the new AI."
     def new(word,name)
       projectDirectory = "#{Dir.home}/#{word}"
       @name = name
@@ -41,24 +40,22 @@ module SStoAI
         ['ss', 'data', 'saved'].each do |filename|
           FileUtils.copy("./lib/SStoAI/files/#{filename}.txt", "#{projectDirectory}/libs")
         end
-        if options[:autocollection]
-          matomes = []
-          for num in 1..3 do
-            matomes.push(URI.escape("http://ssmatomeantenna.info/search.html?category=#{name}&pageID=#{num}"))
-          end
-          File.open("#{projectDirectory}/libs/ss.txt","a") do |file|
-            matomes.each do |matome|
-              extractURLs(matome).each do |url|
-                next if url.include?("2chmoeaitemu")
-                puts "saving ss from #{url}"
-                extractBody(url).each do |str|
-                  file.write("#{str}\n")
-                end
+
+        matomes = collectmatomeURLs(name, 3)
+        File.open("#{projectDirectory}/libs/ss.txt","a") do |file|
+          matomes.each do |matome|
+            extractURLs(matome).each do |url|
+              next if url.include?("2chmoeaitemu")
+              puts "saving ss from #{url}"
+              extractBody(url).each do |str|
+                file.write("#{str}\n")
               end
             end
           end
-          study(name, projectDirectory)
         end
+        
+        study(name, projectDirectory)
+
         puts "complete!"
       else
         puts "もうそのディレクトリあるからｗバーカｗ"
@@ -66,6 +63,14 @@ module SStoAI
     end
 
     private
+
+    def collectmatomeURLs(name, pagecount)
+      matomes = []
+      for num in 1..pagecount do
+        matomes.push(URI.escape("http://ssmatomeantenna.info/search.html?category=#{name}「&pageID=#{num}"))
+      end
+      return matomes
+    end
 
     def extractBody(url)
       open(url) do |io|
@@ -149,10 +154,7 @@ module SStoAI
 
     def sstoHash(str,name)
       s = File.read(str, :encoding => Encoding::UTF_8)
-      s.gsub!("｢","「")
-      s.gsub!("『","「")
-      s.gsub!("｣","」")
-      s.gsub!("』","」")
+      s.gsub!("｢","「").gsub!("『","「").gsub!("｣","」").gsub!("』","」")
       s = s.split("\n")
 
       statements = s.select do |segment|
