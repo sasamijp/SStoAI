@@ -4,62 +4,47 @@
 
 ## Installation
 
-$ git clone git://github.com/sasamijp/SStoAI.git SStoAI
+`git clone git://github.com/sasamijp/SStoAI.git SStoAI`
 
-$ cd SStoAI
+`cd SStoAI`
 
-$ bundle install
+`bundle install`
 
 
 ## Usage
 
 ###作成
 
-人工無能をhome以下に勝手に作る:
+home以下にディレクトリを作成し、SSを自動収集して学習データを作る:  
 
-$ bundle exec bin/SStoAI new harukabot 春香
+`bundle exec bin/SStoAI new harukabot 春香`
 
-〜対象キャラが出てくるSSをただひたすら集める〜
-
-$ cd ~/harukabot/libs/ss.txt
-
-ss.txtに本文を突っ込む(2chの名前欄などはあっても大丈夫):
-
-$ cd ~/harukabot
-
-SS内で使用されるキャラの名前を指定してconvert:
-
-$ ruby cli.rb convert 春香
-
-/libs/data.txtにデータが書き込まれてれば成功
-
-SS収集、学習を全自動で(アイマスキャラのみ対応):
-
-$ bundle exec bin/SStoAi new harukabot 春香 --autocollection
 
 ###話しかける
 
 ホームに移動:
 
-$ cd ~
+`cd ~`
 
-作ったAIのフォルダへ:
+作られたフォルダに移動:  
 
-$ cd harukabot
+`cd harukabot`
 
 gemいれる:
 
-$ bundle install
+`bundle install`
 
 話しかける:
 
-$ ruby cli.rb talk 元気ですか
+`ruby cli.rb talk 元気ですか`
 
 ###botとして動かす
 
-./libs/key.rbにbotとして動かしたいアカウントのCK/CSその他もろもろを入れておく
+./libs/key.rbにbotとして動かしたいアカウントのCK/CSその他もろもろを入れておく  
 
-$ ruby cli.rb twitterbot
+起動:  
+
+`ruby cli.rb twitterbot`
 
 
 ###何かあれば@sasamijpまで
