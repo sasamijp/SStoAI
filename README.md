@@ -15,36 +15,27 @@
 
 ###作成
 
-home以下にディレクトリを作成し、SSを自動収集して学習データを作る:  
+./以下にディレクトリを作成し、SSを自動収集して学習データを作る:  
 
-`bundle exec bin/SStoAI new harukabot 春香`
+`bundle exec bin/SStoAI new tarou 太郎`
 
 
 ###話しかける
 
-ホームに移動:
-
-`cd ~`
-
-作られたフォルダに移動:  
-
-`cd harukabot`
-
-gemいれる:
-
-`bundle install`
-
 話しかける:
 
-`ruby cli.rb talk 元気ですか`
+`bundle exec bin/SStoAI talk tarou 元気ですか`
 
 ###botとして動かす
 
-./libs/key.rbにbotとして動かしたいアカウントのCK/CSその他もろもろを入れておく  
+./tarou/key.rbにbotとして動かしたいアカウントのCK/CSその他もろもろを入れておく  
+なんかbundlerでやったらうまくいかんかったもうやだ  
+`gem install twitter`  
+`gem install tweetstream`
 
 起動:  
 
-`ruby cli.rb twitterbot`
+`ruby cli.rb twitterbot tarou`
 
 
 ###何かあれば@sasamijpまで
