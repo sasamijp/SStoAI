@@ -35,7 +35,7 @@
 
 起動:  
 
-`ruby cli.rb twitterbot tarou`
+`bundle exec bin/SStoAI twitterbot tarou`
 
 
 ###何かあれば@sasamijpまで
