@@ -1,4 +1,5 @@
 # coding: utf-8
+
 [
 'thor',
 'SStoAI',
@@ -8,12 +9,14 @@
 'open-uri',
 'uri',
 'natto',
-'extractcontent'
+'extractcontent',
+'./lib/SStoAI/AU.rb'
 ].each do |str|
   require str
 end
 
 module SStoAI
+  
   class CLI < Thor
 
     desc "test WORD", "testing."
@@ -22,28 +25,24 @@ module SStoAI
     end
 
     desc "new dirname 名前" , "Create the new AI."
-    def new(word,name)
-      projectDirectory = "#{Dir.home}/#{word}"
-      @name = name
+    def new(word, name)
+      projectDirectory = "./#{word}"
+
       unless FileTest.exist?(projectDirectory)
 
-        [projectDirectory, projectDirectory+"/libs"].each do |dirname|
+        [projectDirectory].each do |dirname|
           FileUtils.mkdir(dirname)
           puts "create #{dirname}"
         end
-        ['Gemfile', 'cli.rb'].each do |filename|
-          FileUtils.copy("./lib/SStoAI/files/#{filename}", projectDirectory)
-        end
-        ['talk', 'bot', 'key', 'AU', 'convert_module'].each do |filename|
-          FileUtils.copy("./lib/SStoAI/files/#{filename}.rb", "#{projectDirectory}/libs")
+        ['key'].each do |filename|
+          FileUtils.copy("./lib/SStoAI/files/#{filename}.rb", projectDirectory)
         end
         ['ss', 'data', 'saved'].each do |filename|
-          FileUtils.copy("./lib/SStoAI/files/#{filename}.txt", "#{projectDirectory}/libs")
+          FileUtils.copy("./lib/SStoAI/files/#{filename}.txt", projectDirectory)
         end
 
-        matomes = collectmatomeURLs(name, 3)
-        File.open("#{projectDirectory}/libs/ss.txt","a") do |file|
-          matomes.each do |matome|
+        File.open("#{projectDirectory}/ss.txt","a") do |file|
+          collectmatomeURLs(name, 3).each do |matome|
             extractURLs(matome).each do |url|
               next if url.include?("2chmoeaitemu")
               puts "saving ss from #{url}"
@@ -57,8 +56,105 @@ module SStoAI
         study(name, projectDirectory)
 
         puts "complete!"
+
       else
+
         puts "もうそのディレクトリあるからｗバーカｗ"
+
+      end
+    end
+
+    desc "reconvert name 名前","SS to AI from /ss.txt"
+    def reconvert(directory, charname)
+
+      projectDirectory = "./#{directory}"
+
+      s = File.read("#{projectDirectory}/ss.txt", :encoding => Encoding::UTF_8)
+
+      converted =[]
+      s.split("\n").each do |segment|
+        converted.push(segment) if segment.include?("「") and segment.include?("」")
+      end
+
+      File.open("#{projectDirectory}/saved.txt","a") do |file|
+        converted.each do |s|
+          file.write("#{s}\n")
+        end
+      end
+
+      File.open("#{projectDirectory}/data.txt", "a") do |file|
+        sstoHash("#{projectDirectory}/saved.txt", charname).each do |hash|
+          response = hash[0]
+          targets = extractNouns(hash[1])
+          next if targets == nil
+          file.write "#{response}||#{targets.join(",")}\n"
+        end
+      end
+
+      puts "complete!"
+
+    end
+
+    desc "talk directoryname 文章","talk to AI"
+    def talk(name, str)
+      au = AU.new(name)
+      puts au.respond(str)
+    end
+
+    desc 'twitterbot directoryname', 'take off'
+    def twitterbot(name)
+
+      require "./#{name}/key.rb"
+      if (Const::CONSUMER_KEY == "") or (Const::CONSUMER_SECRET == "") or (Const::ACCESS_TOKEN == "") or (Const::ACCESS_TOKEN_SECRET == "") or (Const::SCREEN_NAME == "")
+        puts "Please set your keys at /key.rb"
+      else
+
+        require 'twitter'
+        require 'tweetstream'
+        p Const::CONSUMER_KEY
+         p Const::CONSUMER_SECRET
+           p Const::ACCESS_TOKEN
+            p Const::ACCESS_TOKEN_SECRET
+
+        configure_tw = Thread.new do
+          @rest = Twitter::REST::Client.new do |config|
+            config.consumer_key        = Const::CONSUMER_KEY
+            config.consumer_secret     = Const::CONSUMER_SECRET
+            config.access_token        = Const::ACCESS_TOKEN
+            config.access_token_secret = Const::ACCESS_TOKEN_SECRET
+          end
+          TweetStream.configure do |config|
+            config.consumer_key        = Const::CONSUMER_KEY
+            config.consumer_secret     = Const::CONSUMER_SECRET
+            config.oauth_token         = Const::ACCESS_TOKEN
+            config.oauth_token_secret  = Const::ACCESS_TOKEN_SECRET
+            config.auth_method            = :oauth
+          end
+        end
+
+        configure_AU = Thread.new do
+          @au = AU.new(name)
+        end
+
+        [configure_tw, configure_AU].each do |thread|
+          thread.join
+        end
+        puts "configure complete!"
+
+        client = TweetStream::Client.new
+        client.userstream do |status|
+          print "."
+          if status.text.include?("@#{Const::SCREEN_NAME}")
+            puts "received reply from #{status.user.screen_name}"
+            response = @au.respond(status.text.gsub("@#{Const::SCREEN_NAME}",""))
+            p response
+            tweet = "@#{status.user.screen_name} #{response}"
+            option = {"in_reply_to_status_id"=>status.id.to_s}
+            p tweet
+            @rest.update(tweet, option)
+          end
+        end
+
       end
     end
 
@@ -67,7 +163,7 @@ module SStoAI
     def collectmatomeURLs(name, pagecount)
       matomes = []
       for num in 1..pagecount do
-        matomes.push(URI.escape("http://ssmatomeantenna.info/search.html?category=#{name}「&pageID=#{num}"))
+        matomes.push('http://ssmatomeantenna.info/search.html?category='+URI.escape("#{name}「")+'&pageID='+"#{num}")
       end
       return matomes
     end
@@ -106,7 +202,7 @@ module SStoAI
     end
 
     def extractNouns(str)
-      return if str == nil
+      return nil if str == nil
       nm = Natto::MeCab.new
       nouns = []
       nm.parse(str) do |n|
@@ -148,7 +244,7 @@ module SStoAI
       if str.include?("「")
         return str[0..str.rindex("「")-1]
       else
-        return "exception"
+        return
       end
     end
 
@@ -165,10 +261,11 @@ module SStoAI
         segment.include?("「") and segment.include?("」")
       end
 
-      p statements
       inReplyto = Hash::new
       s_clone = statements
       statements.each_with_index do |stat,l|
+        print '.'
+        next if stat == "" or stat == nil
         if whoIsTalking(stat) == name and whoIsTalking(s_clone[l+1]) != name
           inReplyto.store(extractSerif(stat),extractSerif(s_clone[l+1]))
         end
@@ -176,20 +273,23 @@ module SStoAI
       return inReplyto
     end
 
-    def study(charactername,projectDirectory)
-      s = File.read("#{projectDirectory}/libs/ss.txt", :encoding => Encoding::UTF_8)
-      converted =[]
+    def study(name, projectDirectory)
+      s = File.read("#{projectDirectory}/ss.txt", :encoding => Encoding::UTF_8)
+      converted = []
       s.split("\n").each do |segment|
         converted.push(segment) if segment.include?("「") and segment.include?("」")
       end
-      File.open("#{projectDirectory}/libs/saved.txt","a") do |file|
+      File.open("#{projectDirectory}/saved.txt","a") do |file|
         converted.each do |s|
           file.write("#{s}\n") unless s == nil
         end
       end
-      sstoHash("#{projectDirectory}/libs/saved.txt", @name).each do |hash|
-        File.open("#{projectDirectory}/libs/data.txt", "a") do |file|
-          file.write "#{hash[0]}||#{extractNouns(hash[1]).join(",")}\n"
+      sstoHash("#{projectDirectory}/saved.txt", name).each do |hash|
+        File.open("#{projectDirectory}/data.txt", "a") do |file|
+          response = hash[0]
+          targets = extractNouns(hash[1])
+          next if targets == nil
+          file.write "#{response}||#{targets.join(",")}\n"
         end
       end
     end

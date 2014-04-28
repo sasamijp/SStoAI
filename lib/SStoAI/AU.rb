@@ -3,8 +3,8 @@ require 'natto'
 
 class AU
 
-  def initialize
-    data = File.read("./data.txt", :encoding => Encoding::UTF_8).split("\n")
+  def initialize(directory)
+    data = File.read("#{directory}/data.txt", :encoding => Encoding::UTF_8).split("\n")
     @targets = []
     @responses = []
     data.each_with_index do |variable,l|
@@ -34,7 +34,7 @@ class AU
       n = hitnumbers.sample.to_i unless hitnumbers.length == 0
       texts.push(@responses[n]) if n != 0
     end
-    if text.length != 0
+    if texts.length != 0
       return texts.sample
     else
       return nil
