@@ -37,5 +37,13 @@
 
 `bundle exec bin/SStoAI twitterbot tarou`
 
+###SS自動生成
+何人か用意しておく:  
+`bundle exec bin/SStoAI new tarou 太郎`  
+`bundle exec bin/SStoAI new jirou 次郎`  
+`bundle exec bin/SStoAI new saburo 三郎`  
 
+ファイル名、何行文出すか、誰を出演させるかを指定して実行:  
+`bundle exec bin/SStoAI generateSS testss.txt 1000 tarou jirou saburou`
+  
 ###何かあれば@sasamijpまで
