@@ -4,10 +4,12 @@ require 'natto'
 class AU
 
   def initialize(directory)
-    data = File.read("#{directory}/data.txt", :encoding => Encoding::UTF_8).split("\n")
+    data = File.read("./#{directory}/data.txt", :encoding => Encoding::UTF_8).split("\n")
+    @directory = directory
     @targets = []
     @responses = []
     data.each_with_index do |variable,l|
+      next unless variable.include?("||")
       variable = variable.split("||")
       @targets[l] = variable[1]
       @responses[l] = variable[0]
@@ -16,6 +18,7 @@ class AU
 
   def respond(str)
     input = extractNounsforTalking(str)
+    return nil if input == nil
     result = []
     hitnumbers = []
     texts=[]
@@ -41,9 +44,16 @@ class AU
     end
   end
 
+  def name
+    return File.read("./#{@directory}/name.txt", :encoding => Encoding::UTF_8)
+  end
+
+
+
   private
 
   def extractNounsforTalking(str)
+    return nil if str == nil
     nm = Natto::MeCab.new
     nouns = []
     nm.parse(str) do |n|

@@ -10,7 +10,8 @@
 'uri',
 'natto',
 'extractcontent',
-'./lib/SStoAI/AU.rb'
+'./lib/SStoAI/AU.rb',
+'./lib/SStoAI/malkov.rb'
 ].each do |str|
   require str
 end
@@ -37,7 +38,7 @@ module SStoAI
         ['key'].each do |filename|
           FileUtils.copy("./lib/SStoAI/files/#{filename}.rb", projectDirectory)
         end
-        ['ss', 'data', 'saved'].each do |filename|
+        ['ss', 'data', 'saved', 'name'].each do |filename|
           FileUtils.copy("./lib/SStoAI/files/#{filename}.txt", projectDirectory)
         end
 
@@ -54,6 +55,10 @@ module SStoAI
         end
 
         study(name, projectDirectory)
+
+        File.open("#{projectDirectory}/name.txt","a") do |file|
+          file.write(name)
+        end
 
         puts "complete!"
 
@@ -111,10 +116,6 @@ module SStoAI
 
         require 'twitter'
         require 'tweetstream'
-        p Const::CONSUMER_KEY
-         p Const::CONSUMER_SECRET
-           p Const::ACCESS_TOKEN
-            p Const::ACCESS_TOKEN_SECRET
 
         configure_tw = Thread.new do
           @rest = Twitter::REST::Client.new do |config|
@@ -156,6 +157,43 @@ module SStoAI
         end
 
       end
+    end
+
+    desc 'generateSS filename 1000 tarou jirou ...', 'generate SS'
+    def generateSS(filename, size, *actor)
+      actors = actor
+      p actors
+      aus = []
+      malkovs = []
+      natto = Natto::MeCab.new
+      actors.each do |actor|
+        aus.push AU.new(actor)
+        malkovs.push Malkov.new(actor ,natto)
+      end
+
+      File.open(filename, "w") do |file|
+
+        starter = malkovs.sample
+        response = starter.create
+        file.write "#{starter.name}「#{response}」\n"
+
+        for l in 0..size.to_i/actors.length do
+
+          aus.each do |au|
+            response = au.respond(response)
+            file.write "#{au.name}「#{response}」\n"
+          end
+
+          if response == nil
+            starter = malkovs.sample
+            response = starter.create
+            file.write "#{starter.name}「#{response}」\n"
+          end
+
+        end
+
+      end
+
     end
 
     private
