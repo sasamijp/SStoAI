@@ -19,6 +19,9 @@
 
 `bundle exec bin/SStoAI new tarou 太郎`
 
+####作成途中で失敗した
+`bundle exec bin/SStoAI reconvert tarou 太郎`  
+今集まってる分だけで学習させます
 
 ###話しかける
 
