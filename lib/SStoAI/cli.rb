@@ -145,9 +145,10 @@ module SStoAI
         client = TweetStream::Client.new
         client.userstream do |status|
           print "."
-          if status.text.include?("@#{Const::SCREEN_NAME}")
+          if !status.text.start_with?("RT") and status.text.include?("@#{Const::SCREEN_NAME}")
             puts "received reply from #{status.user.screen_name}"
-            response = @au.respond(status.text.gsub("@#{Const::SCREEN_NAME}",""))
+            @au = AU.new(name)
+            response = @au.respond(status.text.gsub("@#{Const::SCREEN_NAME} ",""))
             p response
             tweet = "@#{status.user.screen_name} #{response}"
             option = {"in_reply_to_status_id"=>status.id.to_s}
@@ -247,9 +248,11 @@ module SStoAI
         nouns.push(n.surface)
       end
       data = []
-      nouns_clone = nouns
       nouns.each_with_index do |noun,l|
-        data.push("#{nouns_clone[l-1]}#{noun}")
+        next if l == 0
+        break if l == nouns.length
+        data.push("#{nouns[l-1]}#{noun}")
+        data.push("#{noun}#{nouns[l+1]}")
       end
       result = []
       data.each do |dat|
