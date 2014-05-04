@@ -12,18 +12,18 @@ class AU
       variable = variable.split("||")
       @responsesandtargets[l] = [variable[0],variable[1]]
     end
-    @responsesandtargets.delete_if{ |value| value == nil or value[0] == nil or value[1] == nil }
+    @responsesandtargets.delete_if{ |value| value.nil? or value[0].nil? or value[1].nil? }
   end
 
   def respond(str)
     input = extractKeyWords(str)
-    return nil if input == nil
+    return nil if input.nil?
 
-    @responsesandtargets.delete_if{ |value| wordsMatch(value[1].split(","), input) == 0 }
-    @responsesandtargets.sort_by{ |value| wordsMatch(value[1].split(","), input) }
-    @responsesandtargets.map!{ |value| value = value[0] }
+    hitwords = @responsesandtargets.select{ |value| wordsMatch(value[1].split(","), input) == 0 }
+    hitwords.sort_by!{ |value| wordsMatch(value[1].split(","), input) }
+    hitwords.map!{ |value| value = value[0] }
 
-    return biasHeadSample(@responsesandtargets)
+    return biasHeadSample(hitwords)
   end
 
   def name
@@ -45,7 +45,7 @@ class AU
   def biasHeadSample(array)
     narray = []
     array.each_with_index do |value, l|
-      (array.length-l)*(array.length-l).times do 
+      ((array.length-l)*(array.length-l)).times do 
         narray.push value
       end
     end
