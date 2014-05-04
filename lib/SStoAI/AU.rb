@@ -45,7 +45,7 @@ class AU
   def biasHeadSample(array)
     narray = []
     array.each_with_index do |value, l|
-      ((array.length-l)*(array.length-l)).times do 
+      ((array.length-l)**1.1).to_i.times do 
         narray.push value
       end
     end
