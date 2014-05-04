@@ -19,7 +19,7 @@ class AU
     input = extractKeyWords(str)
     return nil if input.nil?
 
-    hitwords = @responsesandtargets.select{ |value| wordsMatch(value[1].split(","), input) == 0 }
+    hitwords = @responsesandtargets.select{ |value| wordsMatch(value[1].split(","), input) != 0 }
     hitwords.sort_by!{ |value| wordsMatch(value[1].split(","), input) }
     hitwords.map!{ |value| value = value[0] }
 
