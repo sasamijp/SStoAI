@@ -1,6 +1,7 @@
 # SStoAI
 
 ショートストーリーを人工無能に変換します
+スライド: https://www.slideshare.net/sasamijp/ss-31508690
 
 ## Installation
 
